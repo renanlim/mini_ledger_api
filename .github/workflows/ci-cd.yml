@@ -1,6 +1,5 @@
 name: BTG Ledger Pipeline
 
-# O pipeline roda sempre que houver um "push" na branch main
 on:
   push:
     branches: [ "main" ]
@@ -8,7 +7,6 @@ on:
     branches: [ "main" ]
 
 jobs:
-  # 1. Fase de CI (Integração Contínua) - Compila o C# e testa
   build-dotnet:
     runs-on: ubuntu-latest
     steps:
@@ -20,18 +18,14 @@ jobs:
       with:
         dotnet-version: '10.0.x'
 
-    - name: Restaurar Dependências (API)
-      run: dotnet restore src/BtgLedger.API/BtgLedger.API.csproj
+    - name: Restaurar Dependencias da Solucao
+      run: dotnet restore BtgLedger.slnx
 
-    - name: Compilar (API)
-      run: dotnet build src/BtgLedger.API/BtgLedger.API.csproj --no-restore -c Release
+    - name: Compilar Solucao
+      run: dotnet build BtgLedger.slnx -c Release --no-restore -p:GenerateResourceNever=true
 
-    - name: Compilar (Worker)
-      run: dotnet build src/BtgLedger.Worker/BtgLedger.Worker.csproj --no-restore -c Release
-
-  # 2. Fase de CD (Deploy / Prepara as Imagens Docker)
   build-docker:
-    needs: build-dotnet # Só roda se o .NET compilar sem erros
+    needs: build-dotnet
     runs-on: ubuntu-latest
     steps:
     - name: Checkout do Código
