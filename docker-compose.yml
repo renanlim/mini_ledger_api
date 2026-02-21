@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  # 1. Nosso Banco de Dados
+  sqlserver:
+    image: mcr.microsoft.com/azure-sql-edge:latest
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=SenhaSuperForte123!
+    ports:
+      - "1433:1433"
+
+  # 2. O Mensageiro
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  # 3. A Sua API
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.API
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      # Conecta no SQL Server do Docker
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=BtgLedgerDb;User Id=sa;Password=Renan@12345;TrustServerCertificate=True;
+      # Conecta no RabbitMQ do Docker
+      - RABBITMQ_HOST=rabbitmq
+    ports:
+      - "5088:8080"
+    depends_on:
+      - sqlserver
+      - rabbitmq
+
+  # 4. O Seu Worker Service
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.Worker
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+    depends_on:
+      - rabbitmq
