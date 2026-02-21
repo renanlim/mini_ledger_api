@@ -53,3 +53,78 @@ A forma mais rápida de subir toda a stack. O Docker Compose criará uma rede vi
 ```bash
 git clone [https://github.com/SEU_USUARIO/NOME_DO_REPO.git](https://github.com/SEU_USUARIO/NOME_DO_REPO.git)
 cd NOME_DO_REPO
+```
+
+2. Suba a infraestrutura em background:
+
+```Bash
+docker-compose up -d --build
+```
+
+3. Verificando os Logs do Worker (Importante para o 2FA):
+Como o SMS é simulado, o PIN de 6 dígitos para o Login aparecerá nos logs do Worker.
+
+```Bash
+docker logs -f btg-ledger-worker-1
+```
+
+4. Acesse as aplicações:
+
+* Frontend React: http://localhost:5173 (Navegue até a pasta do frontend, rode npm install e npm run dev).
+* Swagger API: http://localhost:5088/swagger
+* RabbitMQ Panel: http://localhost:15672 (user: guest, pass: guest)
+
+Para desligar o ambiente: docker-compose down.
+
+### Opção 2: Rodando com Kubernetes (Simulação de Produção)
+Esta opção demonstra o escalonamento, auto-healing e balanceamento de carga do K8s, simulando como o sistema rodaria na nuvem (AWS/Azure).
+
+1. Garanta que o Docker Compose está desligado (docker-compose down).
+
+2. Aplique os manifestos de infraestrutura (Banco e Broker):
+
+```Bash
+kubectl apply -f k8s/infra-deployment.yaml
+```
+
+3. Aplique os manifestos das Aplicações (API e Worker):
+
+```Bash
+kubectl apply -f k8s/api-deployment.yaml
+kubectl apply -f k8s/worker-deployment.yaml
+```
+
+4. Verifique se todos os Pods estão rodando de forma saudável:
+
+```Bash
+kubectl get pods
+```
+
+5. Acesso Externo (Port-Forwarding):
+Como a API está dentro do Cluster K8s, precisamos criar um túnel para o seu computador acessá-la:
+
+```Bash
+kubectl port-forward svc/btg-ledger-api-service 5088:5088
+```
+(Deixe este terminal aberto. O Frontend React agora conseguirá se comunicar com o K8s).
+
+6. Lendo os Logs de Mensageria (MFA):
+Em outro terminal, escute os logs do Worker para capturar o código do SMS:
+
+```Bash
+kubectl logs -f -l app=btg-ledger-worker
+```
+
+Para destruir o cluster local: kubectl delete -f k8s/
+
+🔄 Automação e CI/CD
+O projeto conta com uma esteira de Integração Contínua (CI) configurada via GitHub Actions (.github/workflows/ci-cd.yml).
+A cada Push ou Pull Request na branch main, um robô Linux na nuvem é provisionado para:
+
+1. Fazer o checkout do código.
+
+2. Restaurar dependências e compilar a solução C# inteira (.slnx).
+
+3. Executar validações de Build bloqueando o deploy em caso de quebras.
+
+4. Gerar e validar as Imagens Docker da API e do Worker (Prontas para Continuous Deployment).
