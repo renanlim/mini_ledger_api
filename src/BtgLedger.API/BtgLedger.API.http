@@ -1,0 +1,31 @@
+@HostAddress = http://localhost:5088
+
+### Criar uma conta
+POST {{HostAddress}}/api/accounts
+Content-Type: application/json
+
+{
+  "ownerName": "Renan Lima",
+  "initialBalance": 1000.00
+}
+
+### Consultar Saldo
+GET {{HostAddress}}/api/accounts/1
+
+### Fazer um Débito (Vai dar certo)
+POST {{HostAddress}}/api/accounts/1/transaction
+Content-Type: application/json
+
+{
+  "amount": 200.00,
+  "type": "DEBIT"
+}
+
+### Fazer um Débito sem saldo (Vai dar erro 400, testando a regra de negócio!)
+POST {{HostAddress}}/api/accounts/1/transaction
+Content-Type: application/json
+
+{
+  "amount": 5000.00,
+  "type": "DEBIT"
+}

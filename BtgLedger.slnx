@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/BtgLedger.API/BtgLedger.API.csproj" />
+    <Project Path="src/BtgLedger.Domain/BtgLedger.Domain.csproj" />
+    <Project Path="src/BtgLedger.Infrastructure/BtgLedger.Infrastructure.csproj" />
+    <Project Path="src/BtgLedger.Worker/BtgLedger.Worker.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/BtgLedger.Tests/BtgLedger.Tests.csproj" />
+  </Folder>
+</Solution>
