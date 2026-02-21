@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: btg-ledger-api-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: btg-ledger-api
+  template:
+    metadata:
+      labels:
+        app: btg-ledger-api
+    spec:
+      containers:
+      - name: api
+        image: mini_ledger_api-api:latest 
+        imagePullPolicy: Never 
+        ports:
+        - containerPort: 8080
+        env:
+        - name: ASPNETCORE_ENVIRONMENT
+          value: "Development"
+        - name: RABBITMQ_HOST
+          value: "rabbitmq-service"
+        - name: ConnectionStrings__DefaultConnection
+          value: "Server=sqlserver-service;Database=BtgLedgerDb;User Id=sa;Password=Renan@12345;TrustServerCertificate=True;"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: btg-ledger-api-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: btg-ledger-api
+  ports:
+  - port: 5088
+    targetPort: 8080

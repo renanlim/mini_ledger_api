@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: btg-ledger-worker-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: btg-ledger-worker
+  template:
+    metadata:
+      labels:
+        app: btg-ledger-worker
+    spec:
+      containers:
+      - name: worker
+        image: mini_ledger_api-worker:latest
+        imagePullPolicy: Never
+        env:
+        - name: RABBITMQ_HOST
+          value: "rabbitmq-service" # Aponta para o novo nome no K8s
