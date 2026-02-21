@@ -1,0 +1,46 @@
+# =========================
+# Sistema Operativo (macOS)
+# =========================
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+
+# =========================
+# IDEs (VS Code, Visual Studio)
+# =========================
+.vscode/
+.vs/
+.idea/
+*.user
+*.suo
+*.swp
+
+# =========================
+# .NET / C# (Backend & Worker)
+# =========================
+[Bb]in/
+[Oo]bj/
+TestResults/
+*.sqlite3
+*.db
+# Ignora configurações locais com senhas (se existirem)
+appsettings.Development.json
+
+# =========================
+# Node.js / React (Frontend)
+# =========================
+node_modules/
+dist/
+build/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.env
+.env.local
+
+# =========================
+# Logs e Temporários
+# =========================
+*.log
+*.tmp
