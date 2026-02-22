@@ -18,4 +18,4 @@ spec:
         imagePullPolicy: Never
         env:
         - name: RABBITMQ_HOST
-          value: "rabbitmq-service" # Aponta para o novo nome no K8s
+          value: "rabbitmq-service"

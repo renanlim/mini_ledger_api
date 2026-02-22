@@ -35,7 +35,7 @@ spec:
     port: 15672
     targetPort: 15672
 ---
-# 2. DEPLOYMENT E SERVICE DO SQL SERVER (Azure SQL Edge para o seu Mac)
+# 2. DEPLOYMENT E SERVICE DO SQL SERVER
 apiVersion: apps/v1
 kind: Deployment
 metadata:
