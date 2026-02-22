@@ -1,27 +1,21 @@
-# Usa a imagem oficial do .NET 10 para rodar a API
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
 WORKDIR /app
 EXPOSE 8080
 
-# Usa o SDK para compilar o código
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
-# Copia os arquivos de projeto (CSProj)
 COPY ["src/BtgLedger.API/BtgLedger.API.csproj", "src/BtgLedger.API/"]
 COPY ["src/BtgLedger.Infrastructure/BtgLedger.Infrastructure.csproj", "src/BtgLedger.Infrastructure/"]
 COPY ["src/BtgLedger.Domain/BtgLedger.Domain.csproj", "src/BtgLedger.Domain/"]
 
-# Restaura as dependências
 RUN dotnet restore "src/BtgLedger.API/BtgLedger.API.csproj"
 
-# Copia o resto do código e compila
 COPY . .
 WORKDIR "/src/src/BtgLedger.API"
 RUN dotnet build "BtgLedger.API.csproj" -c Release -o /app/build
 RUN dotnet publish "BtgLedger.API.csproj" -c Release -o /app/publish
 
-# Copia tudo compilado para a imagem final
 FROM base AS final
 WORKDIR /app
 COPY --from=build /app/publish .
