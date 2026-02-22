@@ -9,7 +9,7 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Defina a mesma chave que usamos no Controller
+// Configuração de Segurança: Define a chave simétrica para validar a assinatura dos Tokens JWT
 var key = Encoding.ASCII.GetBytes("MinhaChaveSuperSecretaDoBtgLedger2026!!");
 
 builder.Services.AddAuthentication(x =>
@@ -19,7 +19,7 @@ builder.Services.AddAuthentication(x =>
 })
 .AddJwtBearer(x =>
 {
-    x.RequireHttpsMetadata = false;
+    x.RequireHttpsMetadata = false; // Apenas para ambiente de desenvolvimento
     x.SaveToken = true;
     x.TokenValidationParameters = new TokenValidationParameters
     {
@@ -27,19 +27,17 @@ builder.Services.AddAuthentication(x =>
         IssuerSigningKey = new SymmetricSecurityKey(key),
         ValidateIssuer = false,
         ValidateAudience = false
-      // No BTG real, validaríamos Issuer e Audience para maior segurança!
     };
 });
 
-// 1. Adiciona suporte a Controllers (Padrão corporativo para APIs estruturadas)
 builder.Services.AddControllers();
 
-builder.Services.AddMemoryCache(); // NOVO: Habilita o cache em memória para o nosso 2FA!
+// Habilita o cache volátil (RAM) para armazenar os códigos de 2FA temporariamente
+builder.Services.AddMemoryCache(); 
 
-// 2. Mantém a configuração de OpenAPI (Documentação da sua API)
 builder.Services.AddOpenApi();
 
-// 1. ADICIONE O CORS AQUI (Libera geral para ambiente de desenvolvimento)
+// Configura o CORS para permitir que o Front-end (React/Vite) acesse a API em portas diferentes
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -50,35 +48,31 @@ builder.Services.AddCors(options =>
     });
 });
 
-// 3. Configura o Banco de Dados (Entity Framework Core)
+// Injeção da String de Conexão (O .NET buscará aqui ou no User Secrets conforme configuramos)
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// ADICIONE ESTA LINHA AQUI! (A mágica da Injeção de Dependência)
-// AddScoped significa: Cria uma instância nova por cada requisição HTTP.
+// Injeção de Dependência (DI): Define o tempo de vida dos serviços e repositórios
 builder.Services.AddScoped<IAccountQueryRepository, AccountRepository>();
 builder.Services.AddScoped<IAccountCommandRepository, AccountRepository>();
 builder.Services.AddSingleton<IMessageBusService, RabbitMqService>();
 
 var app = builder.Build();
 
-// 5. Configura o pipeline HTTP
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
 
-// 2. USE O CORS AQUI (Tem que ser antes do MapControllers!)
+// Ordem do Middleware: CORS deve vir antes da Autenticação/Autorização para evitar erros 403 no pre-flight
 app.UseCors("AllowAll");
-app.UseAuthentication(); // Primeiro autentica (quem é você?)
-app.UseAuthorization();  // Depois autoriza (o que você pode fazer?)
+app.UseAuthentication(); 
+app.UseAuthorization();  
 
 app.UseHttpsRedirection();
-
-// 6. Ensina a API a direcionar as requisições para os nossos Controllers
 app.MapControllers();
 
-// Aplica as migrações pendentes na base de dados automaticamente ao arrancar
+// Automatização de Infraestrutura: Garante que o banco de dados esteja atualizado com o schema mais recente ao iniciar
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
