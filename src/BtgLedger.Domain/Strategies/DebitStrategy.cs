@@ -6,7 +6,6 @@ namespace BtgLedger.Domain.Strategies
     {
         public void Execute(Account account, decimal amount)
         {
-            // O Liskov atua aqui: A estratégia executa perfeitamente a regra de débito
             account.ProcessDebit(amount); 
         }
     }

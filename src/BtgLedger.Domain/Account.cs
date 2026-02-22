@@ -4,12 +4,8 @@ namespace BtgLedger.Domain.Entities
     {
         public Guid Id { get; set; }
         public string OwnerName { get; set; }
-        
-        // "private set" protege o saldo. Ninguém pode fazer "account.Balance = 1000000" fora daqui.
-        // Isso é encapsulamento, pilar da Orientação a Objetos.
         public decimal Balance { get; private set; } 
 
-        // NOVOS CAMPOS BANCÁRIOS
         public string Agency { get; private set; }
         public string Number { get; private set; }
         public string PasswordHash { get; private set; }
@@ -26,8 +22,6 @@ namespace BtgLedger.Domain.Entities
             PhoneNumber = phoneNumber;
         }
 
-        // Método para validar se é possível criar a conta (Empty Constructor para EF Core)
-       // Construtor vazio usado pelo Entity Framework Core
         protected Account() 
         { 
             OwnerName = null!;
@@ -63,7 +57,6 @@ namespace BtgLedger.Domain.Entities
         //     }
         // }
 
-        // Substitua o método UpdateBalance inteiro por estes dois métodos específicos:
         public void AddCredit(decimal amount)
         {
             if (amount <= 0) throw new ArgumentException("Amount must be greater than zero.");
@@ -78,8 +71,6 @@ namespace BtgLedger.Domain.Entities
         public void ProcessRefund(decimal amount)
         {
             if (amount <= 0) throw new ArgumentException("Amount must be greater than zero.");
-            // O estorno devolve o dinheiro. Poderíamos ter regras extras aqui no futuro 
-            // (ex: travar estornos maiores que X valor), mas por enquanto, ele soma ao saldo.
             Balance += amount;
         }
     }
