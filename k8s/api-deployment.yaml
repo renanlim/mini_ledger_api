@@ -24,7 +24,7 @@ spec:
         - name: RABBITMQ_HOST
           value: "rabbitmq-service"
         - name: ConnectionStrings__DefaultConnection
-          value: "Server=sqlserver-service;Database=BtgLedgerDb;User Id=sa;Password=Renan@12345;TrustServerCertificate=True;"
+          value: "Server=sqlserver-service;Database=BtgLedgerDb;User Id=sa;Password=SenhaSuperForte123!;TrustServerCertificate=True;"
 ---
 apiVersion: v1
 kind: Service
